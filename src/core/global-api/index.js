@@ -54,8 +54,9 @@ export function initGlobalAPI (Vue: GlobalAPI) {
     return obj
   }
 
-  // 初始化 Vue.options 对象，并给其扩展
+  // 初始化 Vue.options 对象，设置对象的原型为 null（提高性能） ，并给其扩展
   // components/directives/filters/
+  // Vue 注册的全局的组件指令和过滤器都会分别保存在这三个对象下
   Vue.options = Object.create(null)
   ASSET_TYPES.forEach(type => {
     Vue.options[type + 's'] = Object.create(null)
