@@ -263,6 +263,8 @@ function genConfig (name) {
   return config
 }
 
+// 判断是否有 TARGET
+// 如果有，通过 genConfig 生成对应的配置文件
 if (process.env.TARGET) {
   module.exports = genConfig(process.env.TARGET)
 } else {
