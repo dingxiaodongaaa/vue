@@ -29,6 +29,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
       )
     }
   }
+  // 初始化 Vue.config 对象
   Object.defineProperty(Vue, 'config', configDef)
 
   // exposed util methods.
@@ -48,7 +49,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   Vue.nextTick = nextTick
 
   // 2.6 explicit observable API
-  // 让一个对象变成可响应式
+  // 让一个对象变成可响应
   Vue.observable = <T>(obj: T): T => {
     observe(obj)
     return obj

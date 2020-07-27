@@ -5,14 +5,17 @@ import { remove } from '../util/index'
 import config from '../config'
 
 let uid = 0
-
+// dep 是一个可观察对象，可以有多个指令订阅它
 /**
  * A dep is an observable that can have multiple
  * directives subscribing to it.
  */
 export default class Dep {
+  // 静态属性，watcher 对象
   static target: ?Watcher;
+  // dep 实例 ID
   id: number;
+  // dep 实例对应的 watcher 对象/订阅者数组
   subs: Array<Watcher>;
 
   constructor () {
@@ -20,16 +23,20 @@ export default class Dep {
     this.subs = []
   }
 
+  // 添加新的订阅者 watcher 对象
   addSub (sub: Watcher) {
     this.subs.push(sub)
   }
 
+  // 移除订阅者
   removeSub (sub: Watcher) {
     remove(this.subs, sub)
   }
 
+  // 将观察对象和 watcher 建立依赖
   depend () {
     if (Dep.target) {
+      // 如果 target 存在， 把 dep 对象添加到 watcher 的依赖中
       Dep.target.addDep(this)
     }
   }
@@ -49,18 +56,21 @@ export default class Dep {
   }
 }
 
+// Dep.target 用来存放当前正在使用的 watcher
+// 全局唯一，并且一次也只能有一个 watcher 被使用
 // The current target watcher being evaluated.
 // This is globally unique because only one watcher
 // can be evaluated at a time.
 Dep.target = null
 const targetStack = []
-
+// 入栈并将当前 watcher 赋值给 Dep.target
 export function pushTarget (target: ?Watcher) {
   targetStack.push(target)
   Dep.target = target
 }
 
 export function popTarget () {
+  // 出栈操作
   targetStack.pop()
   Dep.target = targetStack[targetStack.length - 1]
 }
