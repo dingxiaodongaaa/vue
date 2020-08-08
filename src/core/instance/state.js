@@ -295,6 +295,7 @@ function initMethods (vm: Component, methods: Object) {
 function initWatch (vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
+    // 如果 watch 的 handler 是数组
     if (Array.isArray(handler)) {
       for (let i = 0; i < handler.length; i++) {
         createWatcher(vm, key, handler[i])
@@ -316,6 +317,7 @@ function createWatcher (
     handler = handler.handler
   }
   if (typeof handler === 'string') {
+    // 把 methods 中定义的方法作为回调函数
     handler = vm[handler]
   }
   return vm.$watch(expOrFn, handler, options)
@@ -352,20 +354,27 @@ export function stateMixin (Vue: Class<Component>) {
     cb: any,
     options?: Object
   ): Function {
+    // 获取 Vue 实例 this
     const vm: Component = this
     if (isPlainObject(cb)) {
+      // 判断如果 cb 是对象执行 createWatcher
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
+    // 标记为用户 watcher
     options.user = true
+    // 创建用户 watcher 对象
     const watcher = new Watcher(vm, expOrFn, cb, options)
+    // 判断 immediate 如果为 true
     if (options.immediate) {
+      // 立即执行一个 cb 回调，并且把当前值传入
       try {
         cb.call(vm, watcher.value)
       } catch (error) {
         handleError(error, vm, `callback for immediate watcher "${watcher.expression}"`)
       }
     }
+    // 返回取消监听的方法
     return function unwatchFn () {
       watcher.teardown()
     }

@@ -163,13 +163,18 @@ function callActivatedHooks (queue) {
  */
 export function queueWatcher (watcher: Watcher) {
   const id = watcher.id
+  // has 是一个对象，用于存储所有已经处理过的 Watcher，防止 Watcher 被重复处理
   if (has[id] == null) {
+    // 如果为 null 说明没有被处理过
     has[id] = true
+    // flushing 为 true 说明当前的队列正在被处理，即队列中存储的 Watcher 对象正在被处理
     if (!flushing) {
+      // 如果没有在处理，就直接将当前 Watcher 放到队尾
       queue.push(watcher)
     } else {
       // if already flushing, splice the watcher based on its id
       // if already past its id, it will be run next immediately.
+      // 如果正在被处理，需要找到一个合适的位置将当前的 Watcher 插入到合适的位置
       let i = queue.length - 1
       while (i > index && queue[i].id > watcher.id) {
         i--
@@ -181,9 +186,11 @@ export function queueWatcher (watcher: Watcher) {
       waiting = true
 
       if (process.env.NODE_ENV !== 'production' && !config.async) {
+        // 遍历队列，调用 update 方法
         flushSchedulerQueue()
         return
       }
+      // 如果是生产环境，将处理函数交给 nextTick 
       nextTick(flushSchedulerQueue)
     }
   }

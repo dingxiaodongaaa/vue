@@ -41,8 +41,10 @@ export default class Dep {
     }
   }
 
+  // 发布通知
   notify () {
     // stabilize the subscriber list first
+    // 使用 slice 对数组进行克隆，为后面数组根据 id 排序做准备
     const subs = this.subs.slice()
     if (process.env.NODE_ENV !== 'production' && !config.async) {
       // subs aren't sorted in scheduler if not running async
@@ -50,6 +52,7 @@ export default class Dep {
       // order
       subs.sort((a, b) => a.id - b.id)
     }
+    // 调用每个订阅者的 update 方法实现更新
     for (let i = 0, l = subs.length; i < l; i++) {
       subs[i].update()
     }

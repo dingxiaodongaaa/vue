@@ -79,6 +79,8 @@ export default class Watcher {
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
+      // expOrFn 是字符串的时候，例如 { 'person.name': function... }
+      // parsePath('person.name') 返回一个函数获取 person.name 的值
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
         this.getter = noop
@@ -99,10 +101,12 @@ export default class Watcher {
    * Evaluate the getter, and re-collect dependencies.
    */
   get () {
+    // 设置 Dep.target 属性
     pushTarget(this)
     let value
     const vm = this.vm
     try {
+      // 将模板转换成虚拟 DOM ，然后将虚拟 DOM 转换成真实 DOM，过程中会触发属性的 get，在 get 中去收集依赖
       value = this.getter.call(vm, vm)
     } catch (e) {
       if (this.user) {
@@ -164,10 +168,12 @@ export default class Watcher {
   update () {
     /* istanbul ignore else */
     if (this.lazy) {
+      // lazy 为 true 说明是 Computed Watcher
       this.dirty = true
     } else if (this.sync) {
       this.run()
     } else {
+      // 是渲染 Watcher
       queueWatcher(this)
     }
   }
@@ -178,6 +184,7 @@ export default class Watcher {
    */
   run () {
     if (this.active) {
+      // 调用 get 方法，初始化的时候也会调用这个方法
       const value = this.get()
       if (
         value !== this.value ||
@@ -191,12 +198,14 @@ export default class Watcher {
         const oldValue = this.value
         this.value = value
         if (this.user) {
+          // 用户 Watcher 执行 cb，try catch 异常处理
           try {
             this.cb.call(this.vm, value, oldValue)
           } catch (e) {
             handleError(e, this.vm, `callback for watcher "${this.expression}"`)
           }
         } else {
+          // 非用户 Watcher 直接执行 cb
           this.cb.call(this.vm, value, oldValue)
         }
       }

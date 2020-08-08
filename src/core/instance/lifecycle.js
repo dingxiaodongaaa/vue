@@ -189,6 +189,8 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+      // _render 将模板转换成虚拟DOM
+      // _update 将生成的虚拟 DOM 转换成真实 DOM
       vm._update(vm._render(), hydrating)
     }
   }
