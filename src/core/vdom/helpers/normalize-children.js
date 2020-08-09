@@ -18,6 +18,7 @@ import { isFalse, isTrue, isDef, isUndef, isPrimitive } from 'shared/util'
 export function simpleNormalizeChildren (children: any) {
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
+      // 通过这种方式调用 concat 如果 children 是一个多维数组，他也会把这个数组展开拼接到前面的数组中，最终变成一个一维数组。
       return Array.prototype.concat.apply([], children)
     }
   }
@@ -40,6 +41,7 @@ function isTextNode (node): boolean {
   return isDef(node) && isDef(node.text) && isFalse(node.isComment)
 }
 
+// 通过递归的方式将 children 转换成一维数组
 function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNode> {
   const res = []
   let i, c, lastIndex, last

@@ -71,12 +71,16 @@ export function createPatchFunction (backend) {
   let i, j
   const cbs = {}
 
+  // modules 节点的属性/事件/样式的操作
+  // nodeOps 节点操作
   const { modules, nodeOps } = backend
 
   for (i = 0; i < hooks.length; ++i) {
+    // cbs['update] = []
     cbs[hooks[i]] = []
     for (j = 0; j < modules.length; ++j) {
       if (isDef(modules[j][hooks[i]])) {
+        // cbs['update'] = [updateAttrs, updateClass, update...]
         cbs[hooks[i]].push(modules[j][hooks[i]])
       }
     }
@@ -696,26 +700,41 @@ export function createPatchFunction (backend) {
       return node.nodeType === (vnode.isComment ? 8 : 3)
     }
   }
+  // 函数柯里化，让一个函数返回一个函数
+  // createPatchFunction({ nodeOps, modules })传入平台相关的两个参数
 
+  // core 中的 createPatchFunction (backend), const { modules, nodeOps } = backend
+  // core 中方法和平台无关，传入两个参数后，可以在上面的函数中使用这两个参数
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
+    // 新的 vnode 不存在
     if (isUndef(vnode)) {
+      // 老的 vnode 存在，执行 Destroy 钩子函数
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
     }
 
     let isInitialPatch = false
+    // 存储新插入的 vnode 节点的队列，为了将来把这些 vnode 节点对应的 DOM 元素挂载在 DOM 树上之后回去触发这些 vnode 的 insert 的钩子函数
     const insertedVnodeQueue = []
 
+    // 老的 vnode 不存在
     if (isUndef(oldVnode)) {
+      // 调用组件的 $mount 的时候没有传参数，所以只是创建了一个DOM节点并没有将其挂载到真实 DOM 上（只是在内存中保存不显示）
       // empty mount (likely as component), create new root element
       isInitialPatch = true
+      // 创建新的 vnode
       createElm(vnode, insertedVnodeQueue)
     } else {
+      // 新的和老的 vnode 都存在，更新
       const isRealElement = isDef(oldVnode.nodeType)
+      // 判断参数1是否是真实 DOM ，如果不是真实 DOM
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        // 更新操作，diff 算法
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // 第一个参数是真实 DOM，创建 vnode
+        // 初始化
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
@@ -748,6 +767,7 @@ export function createPatchFunction (backend) {
         const parentElm = nodeOps.parentNode(oldElm)
 
         // create new node
+        // 创建 DOM 节点
         createElm(
           vnode,
           insertedVnodeQueue,
@@ -797,6 +817,7 @@ export function createPatchFunction (backend) {
       }
     }
 
+    // 触发 vnode 的 insert 钩子函数
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     return vnode.elm
   }
